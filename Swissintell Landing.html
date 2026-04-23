@@ -1,0 +1,1069 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Swissintell — Swiss Intelligence Community</title>
+<style>
+  @font-face{font-family:'Calibri';src:url('fonts/calibri-regular.ttf') format('truetype');font-weight:400;font-style:normal;font-display:swap}
+  @font-face{font-family:'Calibri';src:url('fonts/calibri-italic.ttf') format('truetype');font-weight:400;font-style:italic;font-display:swap}
+  @font-face{font-family:'Calibri';src:url('fonts/calibri-bold.ttf') format('truetype');font-weight:700;font-style:normal;font-display:swap}
+  @font-face{font-family:'Calibri';src:url('fonts/calibri-bold-italic.ttf') format('truetype');font-weight:700;font-style:italic;font-display:swap}
+  :root{
+    --bg:#FAFAF7;
+    --bg-2:#F3F2EC;
+    --ink:#0F0F0E;
+    --ink-2:#2A2A27;
+    --muted:#6B6A64;
+    --line:#D9D7CE;
+    --line-2:#E8E6DE;
+    --red:#DA291C;
+    --red-ink:#B21F14;
+    --gold:#9C7A2E;
+    --serif:'Calibri', 'Calibri Bold', -apple-system, system-ui, sans-serif;
+    --sans:'Calibri', -apple-system, system-ui, sans-serif;
+    --mono:'Calibri', ui-monospace, monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  body{overflow-x:hidden}
+
+  /* ———————————— Page load / intro animations ———————————— */
+  /* Curtain intro */
+  .curtain{position:fixed;inset:0;z-index:999;background:var(--ink);display:grid;place-items:center;pointer-events:none;transform-origin:top}
+  .curtain.out{animation:curtainOut 1.1s cubic-bezier(.77,0,.175,1) forwards}
+  .curtain-mark{display:flex;align-items:center;gap:18px;color:#fff;opacity:0;animation:fadeUp .6s .15s cubic-bezier(.2,.8,.2,1) forwards}
+  .curtain-mark img{height:56px;width:auto;filter:brightness(0) invert(24%) sepia(88%) saturate(3200%) hue-rotate(354deg) brightness(95%) contrast(92%)}
+  .curtain-bar{position:absolute;bottom:60px;left:50%;transform:translateX(-50%);width:180px;height:1px;background:rgba(255,255,255,.2);overflow:hidden}
+  .curtain-bar::after{content:"";position:absolute;inset:0;background:var(--red);transform-origin:left;animation:loadBar .9s .1s cubic-bezier(.65,0,.35,1) forwards;transform:scaleX(0)}
+  @keyframes loadBar{to{transform:scaleX(1)}}
+  @keyframes curtainOut{
+    0%{transform:translateY(0)}
+    100%{transform:translateY(-100%)}
+  }
+  @keyframes fadeUp{
+    0%{opacity:0;transform:translateY(14px)}
+    100%{opacity:1;transform:translateY(0)}
+  }
+
+  /* Initial reveal helpers */
+  .reveal{opacity:0;transform:translateY(22px);transition:opacity .9s cubic-bezier(.2,.8,.2,1),transform .9s cubic-bezier(.2,.8,.2,1)}
+  .reveal.in{opacity:1;transform:translateY(0)}
+  .reveal.d1{transition-delay:.08s}
+  .reveal.d2{transition-delay:.16s}
+  .reveal.d3{transition-delay:.24s}
+  .reveal.d4{transition-delay:.32s}
+  .reveal.d5{transition-delay:.4s}
+  .reveal.d6{transition-delay:.48s}
+
+  /* Hero initial cascade (after curtain) */
+  .hero-anim > *{opacity:0;transform:translateY(22px);animation:fadeUp .9s cubic-bezier(.2,.8,.2,1) forwards}
+  .hero-anim > *:nth-child(1){animation-delay:1.15s}
+  .hero-anim > *:nth-child(2){animation-delay:1.25s}
+  .hero-anim > *:nth-child(3){animation-delay:1.35s}
+  .hero-anim > *:nth-child(4){animation-delay:1.45s}
+  .hero-anim > *:nth-child(5){animation-delay:1.55s}
+
+  /* Featured card comes in from the right */
+  .featured-anim{opacity:0;transform:translateX(40px) translateY(10px);animation:featSlide 1.1s 1.25s cubic-bezier(.2,.8,.2,1) forwards}
+  @keyframes featSlide{to{opacity:1;transform:translateX(0) translateY(0)}}
+
+  /* H1 character split */
+  .split .word{display:inline-block;overflow:hidden;vertical-align:top}
+  .split .word > span{display:inline-block;transform:translateY(110%);animation:wordUp .9s cubic-bezier(.2,.8,.2,1) forwards;animation-delay:var(--d, 1.15s)}
+  @keyframes wordUp{to{transform:translateY(0)}}
+
+  /* Underline sweep on eyebrows */
+  .eyebrow::before,.sec-eyebrow::before{transform-origin:left;animation:lineSweep .8s cubic-bezier(.77,0,.175,1) forwards}
+  @keyframes lineSweep{0%{transform:scaleX(0)}100%{transform:scaleX(1)}}
+
+  /* Header slides down */
+  header.site{animation:hdrDrop .7s 1s cubic-bezier(.2,.8,.2,1) both}
+  .annbar{animation:annFade .5s .9s ease both}
+  @keyframes hdrDrop{0%{opacity:0;transform:translateY(-16px)}100%{opacity:1;transform:translateY(0)}}
+  @keyframes annFade{0%{opacity:0}100%{opacity:1}}
+
+  /* Strip slight fade */
+  .strip{opacity:0;animation:annFade .8s 1.8s ease forwards}
+
+  /* Stat count glow */
+  @keyframes countIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+  /* Event row stagger on reveal */
+  .ev-row.reveal{transition-duration:.7s}
+
+  /* Hover image zoom preserved, add subtle featured image ken burns */
+  .featured .img img{transform:scale(1.02);animation:kenBurns 12s ease-in-out infinite alternate}
+  @keyframes kenBurns{to{transform:scale(1.1)}}
+
+  /* Marquee already animates; nothing to do */
+
+  /* Reduce motion */
+  @media (prefers-reduced-motion:reduce){
+    .curtain,.curtain-mark,.curtain-bar::after,.hero-anim>*,.featured-anim,.split .word > span,header.site,.annbar,.strip,.featured .img img{animation:none!important}
+    .reveal{opacity:1!important;transform:none!important}
+    .curtain{display:none}
+  }
+
+  a{color:inherit;text-decoration:none}
+  img{max-width:100%;display:block}
+  .wrap{max-width:1320px;margin:0 auto;padding:0 40px}
+  .wrap-narrow{max-width:1080px;margin:0 auto;padding:0 40px}
+
+  /* Announcement bar */
+  .annbar{background:var(--ink);color:#EDEBE3;font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase}
+  .annbar .wrap{display:flex;justify-content:space-between;align-items:center;height:36px;gap:24px}
+  .annbar .red-dot{width:7px;height:7px;border-radius:50%;background:var(--red);display:inline-block;margin-right:8px;animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+  .annbar .right{display:flex;gap:20px;align-items:center;opacity:.8}
+
+  /* Header */
+  header.site{position:sticky;top:0;z-index:50;background:rgba(250,250,247,.96);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  header.site .wrap{display:flex;align-items:center;justify-content:space-between;height:76px}
+  .logo{display:flex;align-items:center;gap:14px;color:var(--red);line-height:0}
+  .logo img{height:34px;width:auto;display:block}
+  .foot-brand .logo img{height:38px;filter:none}
+  
+  nav.main{display:flex;gap:34px;align-items:center}
+  nav.main a{font-size:14px;color:var(--ink-2);font-weight:500;position:relative;padding:6px 0}
+  nav.main a:hover{color:var(--red-ink)}
+  nav.main a.active{color:var(--ink)}
+  nav.main a.active::after{content:"";position:absolute;bottom:-2px;left:0;right:0;height:2px;background:var(--red)}
+  .hdr-right{display:flex;align-items:center;gap:18px}
+  .langsw{display:flex;border:1px solid var(--line);background:var(--bg);font-family:var(--mono);font-size:11px;letter-spacing:.1em;font-weight:500}
+  .langsw button{border:0;background:transparent;padding:7px 11px;color:var(--muted);cursor:pointer;font:inherit;letter-spacing:inherit;text-transform:uppercase;border-right:1px solid var(--line)}
+  .langsw button:last-child{border-right:0}
+  .langsw button.on{background:var(--ink);color:var(--bg)}
+  .btn{display:inline-flex;align-items:center;gap:10px;padding:11px 20px;font-size:13.5px;font-weight:600;font-family:var(--sans);border:1px solid var(--ink);background:var(--ink);color:var(--bg);cursor:pointer;letter-spacing:.01em;transition:transform .15s ease,background .2s}
+  .btn:hover{background:var(--red);border-color:var(--red)}
+  .btn.ghost{background:transparent;color:var(--ink)}
+  .btn.ghost:hover{background:var(--ink);color:var(--bg)}
+  .btn.red{background:var(--red);border-color:var(--red);color:#fff}
+  .btn.red:hover{background:var(--red-ink);border-color:var(--red-ink)}
+  .btn .arr{display:inline-block;transition:transform .2s}
+  .btn:hover .arr{transform:translateX(3px)}
+
+  /* Hero */
+  .hero{padding:60px 0 100px;position:relative}
+  .hero .eyebrow{display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--red-ink);margin-bottom:28px}
+  .hero .eyebrow::before{content:"";width:22px;height:1px;background:var(--red)}
+  .hero-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:70px;align-items:center}
+  .hero h1{font-family:var(--serif);font-weight:500;font-size:74px;line-height:1.02;letter-spacing:-.022em;margin:0 0 28px;color:var(--ink);text-wrap:balance}
+  .hero h1 em{font-style:italic;font-weight:400;color:var(--red-ink)}
+  .hero .lede{font-size:18px;line-height:1.55;color:var(--ink-2);max-width:520px;margin:0 0 38px}
+  .hero-ctas{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:46px}
+  .hero-meta{display:flex;gap:40px;padding-top:28px;border-top:1px solid var(--line)}
+  .hero-meta div{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .hero-meta strong{display:block;font-family:var(--serif);font-size:28px;font-weight:500;color:var(--ink);letter-spacing:-.01em;margin-top:6px;text-transform:none}
+
+  /* Featured event card */
+  .featured{background:var(--ink);color:var(--bg);position:relative;overflow:hidden}
+  .featured .img{height:280px;position:relative;overflow:hidden}
+  .featured .img img{width:100%;height:100%;object-fit:cover;filter:grayscale(.3) contrast(1.05)}
+  .featured .img::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,15,14,0) 40%,rgba(15,15,14,.85))}
+  .featured .tag{position:absolute;top:20px;left:20px;background:var(--red);color:#fff;font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;padding:7px 11px;z-index:2;font-weight:500}
+  .featured .live{position:absolute;top:20px;right:20px;z-index:2;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:#EDEBE3;display:flex;align-items:center;gap:8px}
+  .featured .live::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--red);animation:pulse 2s infinite}
+  .featured .body{padding:34px 34px 30px}
+  .featured .date{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#BBB8AD;margin-bottom:18px;display:flex;gap:18px}
+  .featured .date span{display:flex;align-items:center;gap:8px}
+  .featured h3{font-family:var(--serif);font-size:30px;font-weight:500;line-height:1.15;letter-spacing:-.01em;margin:0 0 14px;color:#fff;text-wrap:balance}
+  .featured p{font-size:14.5px;line-height:1.55;color:#BBB8AD;margin:0 0 24px}
+  .featured .speakers{display:flex;align-items:center;gap:14px;padding-top:22px;border-top:1px solid #2A2A27}
+  .speaker-stack{display:flex}
+  .speaker-stack img{width:38px;height:38px;border-radius:50%;border:2px solid var(--ink);margin-left:-10px;object-fit:cover;filter:grayscale(.2)}
+  .speaker-stack img:first-child{margin-left:0}
+  .featured .speakers-txt{font-size:12.5px;color:#BBB8AD;line-height:1.35}
+  .featured .speakers-txt strong{display:block;color:#fff;font-weight:500;margin-bottom:2px}
+  .featured .cta-row{margin-top:22px;display:flex;gap:12px;align-items:center;justify-content:space-between}
+  .featured .cta-row a{font-family:var(--sans);font-size:13px;font-weight:600;color:#fff;display:inline-flex;align-items:center;gap:8px;border-bottom:1px solid var(--red);padding-bottom:3px}
+  .featured .cta-row a:hover{color:var(--red)}
+  .featured .seats{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:#BBB8AD;text-transform:uppercase}
+  .featured .seats b{color:var(--red);font-weight:500}
+
+  /* Marquee strip */
+  .strip{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--bg);overflow:hidden;padding:18px 0;font-family:var(--mono);font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
+  .strip-track{display:flex;gap:60px;animation:scroll 45s linear infinite;white-space:nowrap;width:max-content}
+  .strip-track span{display:inline-flex;align-items:center;gap:14px}
+  .strip-track span::after{content:"●";color:var(--red);font-size:7px}
+  @keyframes scroll{to{transform:translateX(-50%)}}
+
+  /* Section common */
+  section{padding:110px 0;position:relative}
+  .sec-head{display:grid;grid-template-columns:1fr 2fr;gap:60px;margin-bottom:60px;align-items:end}
+  .sec-eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--red-ink);display:flex;align-items:center;gap:12px}
+  .sec-eyebrow::before{content:"";width:28px;height:1px;background:var(--red)}
+  .sec-head h2{font-family:var(--serif);font-weight:500;font-size:48px;line-height:1.08;letter-spacing:-.018em;margin:16px 0 0;text-wrap:balance}
+  .sec-head .right{max-width:540px;font-size:16px;color:var(--ink-2);line-height:1.6}
+
+  /* Stats */
+  .stats{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:70px 0;background:var(--bg-2)}
+  .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0}
+  .stat{padding:0 40px;border-right:1px solid var(--line)}
+  .stat:last-child{border-right:0}
+  .stat .num{font-family:var(--serif);font-size:78px;font-weight:500;line-height:1;letter-spacing:-.03em;color:var(--ink);display:flex;align-items:flex-start;gap:4px}
+  .stat .num sup{font-size:28px;color:var(--red);font-weight:500;margin-top:10px}
+  .stat .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-top:18px;line-height:1.5}
+
+  /* About / verticals */
+  .v-list{border-top:1px solid var(--line)}
+  .v-item{display:grid;grid-template-columns:60px 1fr auto;align-items:center;padding:26px 0;border-bottom:1px solid var(--line);gap:28px;cursor:pointer;transition:padding .2s}
+  .v-item:hover{padding-left:10px}
+  .v-item .n{font-family:var(--mono);font-size:12px;color:var(--muted);letter-spacing:.1em}
+  .v-item .t{font-family:var(--serif);font-size:26px;font-weight:500;letter-spacing:-.01em;color:var(--ink)}
+  .v-item .t small{display:block;font-family:var(--sans);font-size:13px;font-weight:400;color:var(--muted);margin-top:4px;letter-spacing:0}
+  .v-item .ar{width:28px;height:28px;border:1px solid var(--line);display:grid;place-items:center;border-radius:50%;transition:all .2s}
+  .v-item:hover .ar{background:var(--red);border-color:var(--red);color:#fff;transform:rotate(-45deg)}
+  .v-item:hover .t{color:var(--red-ink)}
+
+  .about-right{position:sticky;top:110px}
+  .about-quote{font-family:var(--serif);font-size:28px;line-height:1.35;letter-spacing:-.005em;color:var(--ink);font-style:italic;font-weight:400;margin:0 0 28px;text-wrap:balance}
+  .about-quote::before{content:"\201C";color:var(--red);font-size:56px;line-height:0;display:block;margin-bottom:30px;font-style:normal}
+  .about-sig{display:flex;align-items:center;gap:14px;padding-top:24px;border-top:1px solid var(--line)}
+  .about-sig img{width:52px;height:52px;border-radius:50%;object-fit:cover}
+  .about-sig div{font-size:14px}
+  .about-sig strong{display:block;font-weight:600;color:var(--ink);margin-bottom:2px}
+  .about-sig span{color:var(--muted);font-size:13px}
+
+  /* Events section */
+  .events{background:#0F0F0E;color:var(--bg)}
+  .events .sec-head h2,.events .sec-head .right{color:#EDEBE3}
+  .events .sec-head .right{color:#BBB8AD}
+  .events .sec-eyebrow{color:#E08580}
+  .events .sec-eyebrow::before{background:var(--red)}
+  .ev-list{border-top:1px solid #2A2A27}
+  .ev-row{display:grid;grid-template-columns:160px 1.3fr 1fr 160px 180px;gap:28px;padding:32px 0;border-bottom:1px solid #2A2A27;align-items:center;transition:all .25s;cursor:pointer}
+  .ev-row:hover{padding-left:16px;background:linear-gradient(90deg,rgba(218,41,28,.06),transparent 60%)}
+  .ev-date{font-family:var(--serif);color:#fff}
+  .ev-date .d{font-size:36px;font-weight:500;letter-spacing:-.02em;line-height:1}
+  .ev-date .m{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#BBB8AD;margin-top:8px}
+  .ev-title{font-family:var(--serif);font-size:22px;font-weight:500;line-height:1.25;letter-spacing:-.005em;color:#fff}
+  .ev-title small{display:block;font-family:var(--sans);font-size:12px;font-weight:400;color:#BBB8AD;margin-top:8px;letter-spacing:.04em;text-transform:uppercase;letter-spacing:.1em}
+  .ev-meta{font-size:13.5px;color:#BBB8AD;line-height:1.5}
+  .ev-meta div{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+  .ev-badge{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;padding:6px 10px;border:1px solid #2A2A27;color:#BBB8AD;justify-self:start;font-weight:500}
+  .ev-badge.cyber{border-color:#E08580;color:#E08580}
+  .ev-badge.geo{border-color:#8BA4C4;color:#8BA4C4}
+  .ev-badge.eco{border-color:#C4A86A;color:#C4A86A}
+  .ev-badge.sec{border-color:#A3B38C;color:#A3B38C}
+  .ev-action{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#fff;display:flex;align-items:center;gap:10px;justify-self:end}
+  .ev-action .ar{width:32px;height:32px;border:1px solid #3A3A37;display:grid;place-items:center;border-radius:50%;transition:all .2s}
+  .ev-row:hover .ev-action .ar{background:var(--red);border-color:var(--red);transform:rotate(-45deg)}
+  .events-footer{display:flex;justify-content:space-between;align-items:center;margin-top:46px;padding-top:28px;border-top:1px solid #2A2A27;font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#BBB8AD}
+
+  /* Publications / grid */
+  .pubs-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:24px}
+  .pub{grid-column:span 4;border:1px solid var(--line);background:#fff;padding:0;display:flex;flex-direction:column;transition:all .2s}
+  .pub:hover{border-color:var(--ink);transform:translateY(-3px)}
+  .pub.feat{grid-column:span 6;grid-row:span 2}
+  .pub.wide{grid-column:span 8}
+  .pub .ph{aspect-ratio:16/9;background:var(--bg-2);overflow:hidden;position:relative}
+  .pub.feat .ph{aspect-ratio:4/3}
+  .pub .ph img{width:100%;height:100%;object-fit:cover;transition:transform .6s}
+  .pub:hover .ph img{transform:scale(1.04)}
+  .pub .body{padding:26px 26px 24px;flex:1;display:flex;flex-direction:column}
+  .pub .kicker{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--red-ink);margin-bottom:14px;display:flex;justify-content:space-between}
+  .pub .kicker time{color:var(--muted)}
+  .pub h4{font-family:var(--serif);font-size:21px;font-weight:500;line-height:1.22;letter-spacing:-.005em;margin:0 0 12px;color:var(--ink);text-wrap:balance}
+  .pub.feat h4{font-size:32px;line-height:1.15}
+  .pub p{font-size:14px;color:var(--ink-2);line-height:1.55;margin:0 0 18px}
+  .pub .read{margin-top:auto;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink);display:flex;align-items:center;gap:8px;font-weight:500}
+
+  /* Members / testimonials */
+  .testimonials{background:var(--bg-2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .t-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+  .t-card{background:#fff;border:1px solid var(--line);padding:34px 30px 28px;display:flex;flex-direction:column}
+  .t-card .stars{color:var(--red);font-size:13px;letter-spacing:3px;margin-bottom:18px;font-family:var(--mono)}
+  .t-card blockquote{font-family:var(--serif);font-size:18px;line-height:1.45;letter-spacing:-.003em;color:var(--ink);margin:0 0 28px;font-weight:400;text-wrap:pretty;flex:1}
+  .t-card .who{display:flex;align-items:center;gap:14px;padding-top:22px;border-top:1px solid var(--line)}
+  .t-card .who img{width:46px;height:46px;border-radius:50%;object-fit:cover;filter:grayscale(.2)}
+  .t-card .who strong{display:block;font-size:14px;font-weight:600;margin-bottom:2px}
+  .t-card .who span{font-size:12.5px;color:var(--muted)}
+
+  /* Membership CTA */
+  .membership{padding:0;background:var(--bg)}
+  .mem-inner{background:var(--red);color:#fff;padding:90px 70px;position:relative;overflow:hidden;display:grid;grid-template-columns:1.4fr 1fr;gap:60px;align-items:center}
+  .mem-inner::before{content:"";position:absolute;top:-40px;right:-40px;width:280px;height:280px;border:1px solid rgba(255,255,255,.12);border-radius:50%}
+  .mem-inner::after{content:"";position:absolute;bottom:-80px;right:140px;width:180px;height:180px;border:1px solid rgba(255,255,255,.12);border-radius:50%}
+  .mem-inner .tag{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;opacity:.85;margin-bottom:20px;display:flex;align-items:center;gap:12px}
+  .mem-inner .tag::before{content:"";width:24px;height:1px;background:#fff;opacity:.6}
+  .mem-inner h2{font-family:var(--serif);font-size:52px;font-weight:500;line-height:1.04;letter-spacing:-.02em;margin:0 0 24px;text-wrap:balance}
+  .mem-inner p{font-size:16px;line-height:1.55;opacity:.9;max-width:520px;margin:0 0 36px}
+  .mem-ctas{display:flex;gap:14px;flex-wrap:wrap}
+  .mem-inner .btn{background:#fff;color:var(--red);border-color:#fff}
+  .mem-inner .btn:hover{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .mem-inner .btn.ghost{background:transparent;color:#fff;border-color:rgba(255,255,255,.5)}
+  .mem-inner .btn.ghost:hover{background:#fff;color:var(--red);border-color:#fff}
+  .mem-right{position:relative;z-index:2}
+  .mem-perks{list-style:none;padding:0;margin:0}
+  .mem-perks li{display:flex;gap:14px;padding:16px 0;border-top:1px solid rgba(255,255,255,.2);font-size:14.5px;line-height:1.4}
+  .mem-perks li:last-child{border-bottom:1px solid rgba(255,255,255,.2)}
+  .mem-perks li .k{font-family:var(--mono);font-size:11px;opacity:.7;min-width:32px;padding-top:3px}
+  .mem-perks li strong{display:block;font-weight:600;margin-bottom:3px;font-size:15px}
+  .mem-perks li span{opacity:.85}
+
+  /* Partners */
+  .partners{padding:90px 0;border-top:1px solid var(--line)}
+  .partners h3{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);text-align:center;margin:0 0 50px;font-weight:500}
+  .logo-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:0;border-top:1px solid var(--line);border-left:1px solid var(--line)}
+  .logo-cell{aspect-ratio:2/1;display:grid;place-items:center;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:20px;font-family:var(--serif);color:var(--muted);font-size:17px;letter-spacing:-.01em;font-weight:500;transition:all .2s;font-style:italic;text-align:center}
+  .logo-cell:hover{color:var(--ink);background:var(--bg-2);font-style:normal}
+  .logo-cell.mono{font-family:var(--mono);font-style:normal;font-size:12px;letter-spacing:.1em;text-transform:uppercase}
+
+  /* Footer */
+  footer{background:var(--ink);color:#BBB8AD;padding:90px 0 40px;position:relative}
+  footer .wrap{position:relative;z-index:2}
+  .foot-top{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr 1.2fr;gap:50px;padding-bottom:60px;border-bottom:1px solid #2A2A27}
+  .foot-brand .logo{color:var(--red)}
+  .foot-brand p{font-size:14px;line-height:1.6;margin:22px 0 24px;max-width:300px;color:#BBB8AD}
+  .foot-addr{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;line-height:1.7;color:#9C9B94}
+  .foot-col h5{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:#fff;margin:0 0 22px;font-weight:500}
+  .foot-col ul{list-style:none;padding:0;margin:0}
+  .foot-col li{margin-bottom:11px;font-size:14px}
+  .foot-col a{color:#BBB8AD;transition:color .15s}
+  .foot-col a:hover{color:var(--red)}
+  .foot-news input{width:100%;background:transparent;border:0;border-bottom:1px solid #3A3A37;padding:12px 0;color:#fff;font-family:var(--sans);font-size:14px;outline:none}
+  .foot-news input::placeholder{color:#6B6A64}
+  .foot-news input:focus{border-bottom-color:var(--red)}
+  .foot-news button{margin-top:18px;background:var(--red);border:0;color:#fff;padding:11px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sans);display:inline-flex;align-items:center;gap:8px}
+  .foot-news button:hover{background:var(--red-ink)}
+  .foot-news small{display:block;font-size:12px;color:#9C9B94;margin-top:14px;line-height:1.5}
+  .foot-bottom{display:flex;justify-content:space-between;align-items:center;padding-top:34px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:#6B6A64}
+  .foot-bottom .links{display:flex;gap:24px}
+  .foot-bottom a:hover{color:#BBB8AD}
+  .foot-mega{font-family:var(--serif);font-size:190px;font-weight:500;line-height:.85;letter-spacing:-.04em;color:#1A1A18;margin:70px 0 -30px;text-align:center;user-select:none;pointer-events:none;overflow:hidden}
+
+  /* Decorative swiss cross accent */
+  .swiss-accent{position:absolute;width:80px;height:80px;pointer-events:none;opacity:.07}
+  .swiss-accent::before,.swiss-accent::after{content:"";position:absolute;background:var(--red);border-radius:2px}
+  .swiss-accent::before{top:35%;left:10%;right:10%;height:30%}
+  .swiss-accent::after{left:35%;top:10%;bottom:10%;width:30%}
+
+  @media (max-width:960px){
+    .wrap{padding:0 24px}
+    .hero-grid,.verticals .wrap,.mem-inner,.foot-top{grid-template-columns:1fr;gap:40px}
+    nav.main{display:none}
+    .hero h1{font-size:44px}
+    .stats-grid{grid-template-columns:repeat(2,1fr);gap:40px 0}
+    .stat{padding:20px}
+    .stat:nth-child(2){border-right:0}
+    .pub,.pub.feat,.pub.wide{grid-column:span 12}
+    .t-grid,.logo-grid{grid-template-columns:repeat(2,1fr)}
+    .ev-row{grid-template-columns:80px 1fr;gap:12px}
+    .ev-row > *:nth-child(n+3){grid-column:2}
+    .sec-head{grid-template-columns:1fr}
+    .sec-head h2{font-size:34px}
+    .mem-inner{padding:50px 30px}
+    .foot-mega{font-size:80px}
+  }
+</style>
+</head>
+<body>
+
+<!-- Intro curtain -->
+<div class="curtain" id="curtain">
+  <div class="curtain-mark">
+    <img src="assets/logo.svg" alt="Swissintell"/>
+  </div>
+  <div class="curtain-bar"></div>
+</div>
+
+<!-- Announcement bar -->
+<div class="annbar">
+  <div class="wrap">
+    <div><span class="red-dot"></span>Next event · 14 May 2026 · Lausanne · EPFL Innovation Park</div>
+    <div class="right">
+      <span>Members: 352</span>
+      <span>Since 2006</span>
+      <span>Lausanne · CH</span>
+    </div>
+  </div>
+</div>
+
+<!-- Header -->
+<header class="site">
+  <div class="wrap">
+    <a class="logo" href="#" aria-label="Swissintell">
+      <img src="assets/logo.svg" alt="Swissintell"/>
+    </a>
+    <nav class="main">
+      <a href="#" class="active">Home</a>
+      <a href="#events">Events</a>
+      <a href="#insights">Publications</a>
+      <a href="#verticals">Verticals</a>
+      <a href="#members">Members</a>
+      <a href="#about">About</a>
+    </nav>
+    <div class="hdr-right">
+      <div class="langsw" role="group" aria-label="Language">
+        <button class="on" data-lang="en">EN</button>
+        <button data-lang="fr">FR</button>
+        <button data-lang="de">DE</button>
+      </div>
+      <a class="btn" href="#membership">Member login <span class="arr">→</span></a>
+    </div>
+  </div>
+</header>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div class="hero-anim">
+        <div class="eyebrow">Featured Event · Members &amp; Guests</div>
+        <h1>Intelligence shapes decisions. We <em>shape</em> the intelligence community.</h1>
+        <p class="lede">Swissintell brings together 350+ practitioners in competitive, economic and strategic intelligence across Switzerland. Convening since 2006, we publish, we debate, we connect.</p>
+        <div class="hero-ctas">
+          <a href="#membership" class="btn red">Become a member <span class="arr">→</span></a>
+          <a href="#events" class="btn ghost">Browse the calendar</a>
+        </div>
+        <div class="hero-meta">
+          <div>Founded<strong>2006</strong></div>
+          <div>Members<strong>352</strong></div>
+          <div>Events / year<strong>12+</strong></div>
+          <div>Languages<strong>EN · FR · DE</strong></div>
+        </div>
+      </div>
+
+      <!-- Featured event card -->
+      <article class="featured featured-anim">
+        <div class="img">
+          <span class="tag">Next event</span>
+          <span class="live">Registration open</span>
+          <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?w=900&q=80" alt="Conference"/>
+        </div>
+        <div class="body">
+          <div class="date">
+            <span>◆ Thu 14 May 2026</span>
+            <span>◆ 18:30 CET</span>
+          </div>
+          <h3>Economic Intelligence in a Fragmented World: Switzerland&rsquo;s Playbook for 2030</h3>
+          <p>A round-table on how Swiss corporates, banks and public institutions are rebuilding their intelligence functions amid sanctions, supply-chain shocks and dual-use tech.</p>
+
+          <div class="speakers">
+            <div class="speaker-stack">
+              <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=100&q=80" alt=""/>
+              <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=100&q=80" alt=""/>
+              <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&q=80" alt=""/>
+              <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80" alt=""/>
+            </div>
+            <div class="speakers-txt">
+              <strong>4 speakers · Panel + Q&amp;A</strong>
+              EPFL Innovation Park, Lausanne
+            </div>
+          </div>
+
+          <div class="cta-row">
+            <a href="#">Reserve your seat →</a>
+            <div class="seats"><b>42</b> of 120 seats left</div>
+          </div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- Marquee strip -->
+<div class="strip">
+  <div class="strip-track">
+    <span>Competitive Intelligence</span><span>Cybersecurity</span><span>Geopolitics</span><span>Economic Intelligence</span><span>Due Diligence</span><span>Open-Source</span><span>Crisis &amp; Resilience</span><span>Information Warfare</span>
+    <span>Competitive Intelligence</span><span>Cybersecurity</span><span>Geopolitics</span><span>Economic Intelligence</span><span>Due Diligence</span><span>Open-Source</span><span>Crisis &amp; Resilience</span><span>Information Warfare</span>
+  </div>
+</div>
+
+<!-- Stats -->
+<section class="stats" id="about" style="padding-top:70px;padding-bottom:70px">
+  <div class="wrap">
+    <div class="stats-grid">
+      <div class="stat">
+        <div class="num">352</div>
+        <div class="lbl">Active members<br>across Switzerland</div>
+      </div>
+      <div class="stat">
+        <div class="num">18<sup>yrs</sup></div>
+        <div class="lbl">Convening the intelligence<br>community since 2006</div>
+      </div>
+      <div class="stat">
+        <div class="num">240<sup>+</sup></div>
+        <div class="lbl">Talks, panels &amp; workshops<br>organised over the years</div>
+      </div>
+      <div class="stat">
+        <div class="num">3</div>
+        <div class="lbl">Working languages<br>English · French · German</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Verticals / about -->
+<section class="verticals" id="verticals">
+  <div class="wrap">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:90px;align-items:start">
+      <div>
+        <div class="sec-eyebrow">Thematic verticals</div>
+        <h2 style="font-family:var(--serif);font-weight:500;font-size:48px;line-height:1.08;letter-spacing:-.018em;margin:16px 0 32px;text-wrap:balance">Eight disciplines. One community of practice.</h2>
+
+        <div class="v-list">
+          <div class="v-item">
+            <div class="n">01</div>
+            <div class="t">Competitive Intelligence<small>Markets, competitors, industry signals</small></div>
+            <div class="ar">→</div>
+          </div>
+          <div class="v-item">
+            <div class="n">02</div>
+            <div class="t">Economic Intelligence<small>Sanctions, trade policy, supply chains</small></div>
+            <div class="ar">→</div>
+          </div>
+          <div class="v-item">
+            <div class="n">03</div>
+            <div class="t">Geopolitics &amp; Strategic Analysis<small>Global risk, scenario planning</small></div>
+            <div class="ar">→</div>
+          </div>
+          <div class="v-item">
+            <div class="n">04</div>
+            <div class="t">Cyber &amp; Digital Intelligence<small>Threat landscape, OSINT, attribution</small></div>
+            <div class="ar">→</div>
+          </div>
+          <div class="v-item">
+            <div class="n">05</div>
+            <div class="t">Due Diligence &amp; Integrity<small>KYC, ESG, reputation research</small></div>
+            <div class="ar">→</div>
+          </div>
+          <div class="v-item">
+            <div class="n">06</div>
+            <div class="t">Crisis &amp; Resilience<small>Incident response, business continuity</small></div>
+            <div class="ar">→</div>
+          </div>
+          <div class="v-item">
+            <div class="n">07</div>
+            <div class="t">Information &amp; Influence<small>Disinformation, narrative warfare</small></div>
+            <div class="ar">→</div>
+          </div>
+          <div class="v-item">
+            <div class="n">08</div>
+            <div class="t">Technology &amp; Dual-Use<small>AI, semiconductors, export controls</small></div>
+            <div class="ar">→</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="about-right">
+        <div class="sec-eyebrow">The association</div>
+        <blockquote class="about-quote">
+          For eighteen years we have offered practitioners, academics and public officials a neutral ground to learn, exchange and shape the craft of intelligence in Switzerland.
+        </blockquote>
+        <div class="about-sig">
+          <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=120&q=80" alt=""/>
+          <div>
+            <strong>The Swissintell Board</strong>
+            <span>EPFL Innovation Park · Lausanne</span>
+          </div>
+        </div>
+
+        <div style="margin-top:48px;padding:28px;border:1px solid var(--line);background:#fff">
+          <div style="font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:14px">What members get</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;font-size:13.5px;line-height:1.5">
+            <div>▸ Monthly private events</div>
+            <div>▸ Gated publications archive</div>
+            <div>▸ Member directory</div>
+            <div>▸ Working-group access</div>
+            <div>▸ Partner discounts</div>
+            <div>▸ Annual journal</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Events -->
+<section class="events" id="events">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <div class="sec-eyebrow">Upcoming calendar</div>
+        <h2>Six events in the<br>months ahead.</h2>
+      </div>
+      <div class="right">
+        Curated round-tables, closed-door briefings and field visits across Lausanne, Geneva, Zürich and Bern. Open registration for members; selected sessions for guests.
+      </div>
+    </div>
+
+    <div class="ev-list">
+      <div class="ev-row">
+        <div class="ev-date"><div class="d">14</div><div class="m">May 2026</div></div>
+        <div class="ev-title">Economic Intelligence in a Fragmented World<small>Round-table · 18:30 CET</small></div>
+        <div class="ev-meta"><div>◆ Lausanne · EPFL Innovation Park</div><div>◆ Open to guests</div></div>
+        <span class="ev-badge eco">Economic</span>
+        <div class="ev-action">Details <span class="ar">→</span></div>
+      </div>
+
+      <div class="ev-row">
+        <div class="ev-date"><div class="d">03</div><div class="m">Jun 2026</div></div>
+        <div class="ev-title">OSINT for Due Diligence: Tools &amp; Boundaries<small>Workshop · 09:00–13:00</small></div>
+        <div class="ev-meta"><div>◆ Geneva · Maison de la Paix</div><div>◆ Members only</div></div>
+        <span class="ev-badge cyber">Cyber / OSINT</span>
+        <div class="ev-action">Details <span class="ar">→</span></div>
+      </div>
+
+      <div class="ev-row">
+        <div class="ev-date"><div class="d">19</div><div class="m">Jun 2026</div></div>
+        <div class="ev-title">Red-Team Storytelling: Narratives &amp; Influence Ops<small>Evening talk · 19:00 CET</small></div>
+        <div class="ev-meta"><div>◆ Zürich · ETH Main Building</div><div>◆ Open to guests</div></div>
+        <span class="ev-badge geo">Geopolitics</span>
+        <div class="ev-action">Details <span class="ar">→</span></div>
+      </div>
+
+      <div class="ev-row">
+        <div class="ev-date"><div class="d">04</div><div class="m">Sep 2026</div></div>
+        <div class="ev-title">Semiconductor Geopolitics: Switzerland&rsquo;s Stake<small>Private briefing · invite-only</small></div>
+        <div class="ev-meta"><div>◆ Bern · closed venue</div><div>◆ Board invitation</div></div>
+        <span class="ev-badge geo">Geopolitics</span>
+        <div class="ev-action">Details <span class="ar">→</span></div>
+      </div>
+
+      <div class="ev-row">
+        <div class="ev-date"><div class="d">21</div><div class="m">Oct 2026</div></div>
+        <div class="ev-title">Annual Swissintell Forum 2026<small>Flagship day · 08:30–18:00</small></div>
+        <div class="ev-meta"><div>◆ Lausanne · SwissTech Convention Center</div><div>◆ Open to guests</div></div>
+        <span class="ev-badge sec">Flagship</span>
+        <div class="ev-action">Details <span class="ar">→</span></div>
+      </div>
+
+      <div class="ev-row">
+        <div class="ev-date"><div class="d">11</div><div class="m">Nov 2026</div></div>
+        <div class="ev-title">Crisis Simulation: 48 Hours in a Corporate SOC<small>Workshop · full-day</small></div>
+        <div class="ev-meta"><div>◆ Zürich · industrial partner site</div><div>◆ Members only</div></div>
+        <span class="ev-badge cyber">Crisis &amp; Resilience</span>
+        <div class="ev-action">Details <span class="ar">→</span></div>
+      </div>
+    </div>
+
+    <div class="events-footer">
+      <div>Showing 6 of 14 scheduled events</div>
+      <a href="#" style="color:#fff;display:inline-flex;align-items:center;gap:10px">See full calendar <span style="color:var(--red)">→</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- Publications -->
+<section id="insights">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <div class="sec-eyebrow">Publications &amp; press review</div>
+        <h2>Editorial work,<br>since 2013.</h2>
+      </div>
+      <div class="right">
+        Our editorial team curates notes, book reviews and a weekly press digest on intelligence matters. Full archive available to members.
+      </div>
+    </div>
+
+    <div class="pubs-grid">
+      <article class="pub feat">
+        <div class="ph"><img src="https://images.unsplash.com/photo-1524661135-423995f22d0b?w=1200&q=80" alt=""/></div>
+        <div class="body">
+          <div class="kicker"><span>Long read · Geopolitics</span><time>April 2026</time></div>
+          <h4>Neutrality as a Competitive Advantage: Reading Switzerland in 2026</h4>
+          <p>A 20-page analysis of how Swiss neutrality is being redefined in an era of weaponised interdependence — from SWIFT sanctions to dual-use export controls and the quiet return of industrial policy.</p>
+          <a class="read" href="#">Read the essay <span>→</span></a>
+        </div>
+      </article>
+
+      <article class="pub">
+        <div class="ph"><img src="https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&q=80" alt=""/></div>
+        <div class="body">
+          <div class="kicker"><span>Press review</span><time>15 Apr 2026</time></div>
+          <h4>Weekly digest: sanctions, cyber and dual-use</h4>
+          <a class="read" href="#">Read digest <span>→</span></a>
+        </div>
+      </article>
+
+      <article class="pub">
+        <div class="ph"><img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&q=80" alt=""/></div>
+        <div class="body">
+          <div class="kicker"><span>Book review</span><time>09 Apr 2026</time></div>
+          <h4>&ldquo;The Silicon Strategy&rdquo; by E. Kaufmann — reviewed</h4>
+          <a class="read" href="#">Read review <span>→</span></a>
+        </div>
+      </article>
+
+      <article class="pub">
+        <div class="ph"><img src="https://images.unsplash.com/photo-1529400971008-f566de0e6dfc?w=800&q=80" alt=""/></div>
+        <div class="body">
+          <div class="kicker"><span>Working paper · Cyber</span><time>28 Mar 2026</time></div>
+          <h4>Attribution in the fog: a framework for Swiss SMEs</h4>
+          <a class="read" href="#">Read paper <span>→</span></a>
+        </div>
+      </article>
+
+      <article class="pub">
+        <div class="ph"><img src="https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&q=80" alt=""/></div>
+        <div class="body">
+          <div class="kicker"><span>Interview</span><time>19 Mar 2026</time></div>
+          <h4>From FINMA to the boardroom: intelligence as governance</h4>
+          <a class="read" href="#">Read interview <span>→</span></a>
+        </div>
+      </article>
+
+      <article class="pub">
+        <div class="ph"><img src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=800&q=80" alt=""/></div>
+        <div class="body">
+          <div class="kicker"><span>Note</span><time>08 Mar 2026</time></div>
+          <h4>OSINT ethics: where the Swiss framework stands</h4>
+          <a class="read" href="#">Read note <span>→</span></a>
+        </div>
+      </article>
+    </div>
+
+    <div style="margin-top:50px;display:flex;justify-content:space-between;align-items:center;padding-top:28px;border-top:1px solid var(--line)">
+      <div style="font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)">240+ articles in the archive · members only after 2024</div>
+      <a href="#" class="btn ghost">Open archive <span class="arr">→</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- Testimonials -->
+<section class="testimonials" id="members">
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <div class="sec-eyebrow">Voices from the community</div>
+        <h2>Why members<br>renew, year after year.</h2>
+      </div>
+      <div class="right">
+        A snapshot from the 2025 member survey. 94&#8239;% of respondents rated the association &ldquo;valuable&rdquo; or &ldquo;very valuable&rdquo; to their practice.
+      </div>
+    </div>
+
+    <div class="t-grid">
+      <div class="t-card">
+        <div class="stars">★★★★★</div>
+        <blockquote>The only place in Switzerland where a corporate analyst, a federal officer and an academic sit at the same table — and actually talk shop.</blockquote>
+        <div class="who">
+          <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=120&q=80" alt=""/>
+          <div><strong>Dr. Elena Hauser</strong><span>Head of Intelligence · Private Bank, Zürich</span></div>
+        </div>
+      </div>
+
+      <div class="t-card">
+        <div class="stars">★★★★★</div>
+        <blockquote>The press review alone saves me four hours a week. The annual Forum is where my best hires have come from in the last five years.</blockquote>
+        <div class="who">
+          <img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=120&q=80" alt=""/>
+          <div><strong>Marc Voegeli</strong><span>Director CI · Pharma Group, Basel</span></div>
+        </div>
+      </div>
+
+      <div class="t-card">
+        <div class="stars">★★★★★</div>
+        <blockquote>Serious, confidential, and refreshingly free of vendor noise. Swissintell keeps the signal-to-noise ratio that our profession desperately needs.</blockquote>
+        <div class="who">
+          <img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=120&q=80" alt=""/>
+          <div><strong>Isabelle Rochat</strong><span>Senior Advisor · Federal Department, Bern</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Membership CTA -->
+<section class="membership">
+  <div class="wrap">
+    <div class="mem-inner">
+      <div>
+        <div class="tag">Membership 2026 · Now open</div>
+        <h2>Join the Swiss intelligence community.</h2>
+        <p>Individual and institutional memberships run on a calendar year. Two-step application reviewed by the Board; onboarding call with a board member within two weeks.</p>
+        <div class="mem-ctas">
+          <a href="#" class="btn">Apply for membership <span class="arr">→</span></a>
+          <a href="#" class="btn ghost">Download the charter (PDF)</a>
+        </div>
+      </div>
+      <div class="mem-right">
+        <ul class="mem-perks">
+          <li><div class="k">01</div><div><strong>CHF 240 / year — Individual</strong><span>Full access, voting rights, archive.</span></div></li>
+          <li><div class="k">02</div><div><strong>CHF 120 / year — Academic &amp; Public</strong><span>Reduced rate for researchers and officials.</span></div></li>
+          <li><div class="k">03</div><div><strong>CHF 1,800 / year — Institutional</strong><span>Up to 6 named delegates, logo on partners.</span></div></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Partners -->
+<section class="partners">
+  <div class="wrap">
+    <h3>— Partners, supporters and institutional hosts —</h3>
+    <div class="logo-grid">
+      <div class="logo-cell">EPFL Innovation Park</div>
+      <div class="logo-cell mono">SECURITAS</div>
+      <div class="logo-cell">Maison de la Paix</div>
+      <div class="logo-cell mono">KUDELSKI · GROUP</div>
+      <div class="logo-cell">ETH Zürich</div>
+      <div class="logo-cell mono">SWITCH · CERT</div>
+      <div class="logo-cell">Graduate Institute</div>
+      <div class="logo-cell mono">BFH · BERN</div>
+      <div class="logo-cell">CREA Lausanne</div>
+      <div class="logo-cell mono">SCHINDLER</div>
+      <div class="logo-cell">FER Genève</div>
+      <div class="logo-cell mono">HELVETIA·ASSURANCES</div>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="wrap">
+    <div class="foot-top">
+      <div class="foot-brand">
+        <a class="logo" href="#" aria-label="Swissintell">
+          <img src="assets/logo.svg" alt="Swissintell"/>
+        </a>
+        <p>A Swiss association bringing together practitioners, academics and institutions around the craft of intelligence. Independent, non-partisan, since 2006.</p>
+        <div class="foot-addr">
+          EPFL Innovation Park · Bldg C<br>
+          CH-1015 Lausanne<br>
+          info@swissintell.ch
+        </div>
+      </div>
+      <div class="foot-col">
+        <h5>Community</h5>
+        <ul>
+          <li><a href="#">Events</a></li>
+          <li><a href="#">Membership</a></li>
+          <li><a href="#">Member directory</a></li>
+          <li><a href="#">Working groups</a></li>
+          <li><a href="#">Annual Forum</a></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <h5>Editorial</h5>
+        <ul>
+          <li><a href="#">Publications</a></li>
+          <li><a href="#">Press review</a></li>
+          <li><a href="#">Book reviews</a></li>
+          <li><a href="#">Annual journal</a></li>
+          <li><a href="#">Archive (members)</a></li>
+        </ul>
+      </div>
+      <div class="foot-col">
+        <h5>About</h5>
+        <ul>
+          <li><a href="#">The association</a></li>
+          <li><a href="#">Board &amp; charter</a></li>
+          <li><a href="#">Partners</a></li>
+          <li><a href="#">Press &amp; media</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+      <div class="foot-col foot-news">
+        <h5>Newsletter</h5>
+        <p style="font-size:14px;line-height:1.55;margin:0 0 18px;color:#BBB8AD">Monthly digest. Events, publications, press review. Free.</p>
+        <input type="email" placeholder="your.email@example.ch"/>
+        <button>Subscribe <span>→</span></button>
+        <small>No spam. Unsubscribe in one click. Read our privacy notice.</small>
+      </div>
+    </div>
+
+    <div class="foot-mega">Swissintell</div>
+
+    <div class="foot-bottom">
+      <div>© 2026 Swissintell · Association · IBAN CH00 0000 0000 0000 0000 0</div>
+      <div class="links">
+        <a href="#">Legal</a>
+        <a href="#">Privacy</a>
+        <a href="#">Imprint</a>
+        <a href="#">LinkedIn Group</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- Language switcher behaviour + tiny i18n + intro / scroll animations -->
+<script>
+  // ———— Curtain intro ————
+  (function(){
+    const curtain = document.getElementById('curtain');
+    if (!curtain) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      curtain.style.display = 'none';
+      return;
+    }
+    // Hold briefly, then slide up
+    setTimeout(() => {
+      curtain.classList.add('out');
+      setTimeout(() => curtain.remove(), 1150);
+    }, 1050);
+  })();
+
+  // ———— Scroll-triggered reveal ————
+  (function(){
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('in');
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
+
+    // Auto-tag common elements as reveal
+    const selectors = [
+      '.sec-head > div',
+      '.stat',
+      '.v-item',
+      '.ev-row',
+      '.pub',
+      '.t-card',
+      '.mem-inner > div',
+      '.mem-perks li',
+      '.logo-cell',
+      '.foot-top > div'
+    ];
+    selectors.forEach(sel => {
+      document.querySelectorAll(sel).forEach((el, i) => {
+        el.classList.add('reveal');
+        const d = Math.min(i % 6, 5);
+        if (d > 0) el.classList.add('d' + d);
+        io.observe(el);
+      });
+    });
+  })();
+
+  // ———— Stat counter ————
+  (function(){
+    const stats = document.querySelectorAll('.stat .num');
+    const parse = (el) => {
+      const raw = el.childNodes[0] ? el.childNodes[0].textContent.trim() : el.textContent.trim();
+      const n = parseInt(raw.replace(/\D/g,''), 10);
+      return isNaN(n) ? null : n;
+    };
+    const animateNum = (el, target) => {
+      const dur = 1400;
+      const start = performance.now();
+      const sup = el.querySelector('sup');
+      const supHTML = sup ? sup.outerHTML : '';
+      const tick = (t) => {
+        const p = Math.min(1, (t - start) / dur);
+        const eased = 1 - Math.pow(1 - p, 3);
+        const cur = Math.round(target * eased);
+        el.innerHTML = cur + supHTML;
+        if (p < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    };
+    const io2 = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          const n = parse(e.target);
+          if (n !== null) animateNum(e.target, n);
+          io2.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.4 });
+    stats.forEach(el => io2.observe(el));
+  })();
+
+  // ———— H1 split-word reveal ————
+  (function(){
+    const h1 = document.querySelector('.hero h1');
+    if (!h1) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    // Build preserving <em>
+    const nodes = Array.from(h1.childNodes);
+    h1.classList.add('split');
+    h1.innerHTML = '';
+    let idx = 0;
+    const baseDelay = 1.15;
+    nodes.forEach(node => {
+      if (node.nodeType === 3) { // text
+        const words = node.textContent.split(/(\s+)/);
+        words.forEach(w => {
+          if (!w.trim()) { h1.appendChild(document.createTextNode(w)); return; }
+          const wrap = document.createElement('span');
+          wrap.className = 'word';
+          const inner = document.createElement('span');
+          inner.textContent = w;
+          inner.style.setProperty('--d', (baseDelay + idx*0.05) + 's');
+          wrap.appendChild(inner);
+          h1.appendChild(wrap);
+          idx++;
+        });
+      } else if (node.nodeType === 1) {
+        // em element — keep as is but wrap inner text
+        const em = document.createElement(node.tagName.toLowerCase());
+        const wrap = document.createElement('span');
+        wrap.className = 'word';
+        const inner = document.createElement('span');
+        inner.textContent = node.textContent;
+        inner.style.setProperty('--d', (baseDelay + idx*0.05) + 's');
+        wrap.appendChild(inner);
+        em.appendChild(wrap);
+        h1.appendChild(em);
+        idx++;
+      }
+    });
+  })();
+
+  const i18n = {
+    en: {
+      heroEyebrow: "Featured Event · Members & Guests",
+      heroH1a: "Intelligence shapes decisions. We ",
+      heroH1b: "shape",
+      heroH1c: " the intelligence community.",
+      heroLede: "Swissintell brings together 350+ practitioners in competitive, economic and strategic intelligence across Switzerland. Convening since 2006, we publish, we debate, we connect.",
+      ctaApply: "Become a member",
+      ctaCal: "Browse the calendar",
+      login: "Member login"
+    },
+    fr: {
+      heroEyebrow: "Évènement à la une · Membres & invités",
+      heroH1a: "L'intelligence guide les décisions. Nous ",
+      heroH1b: "façonnons",
+      heroH1c: " la communauté du renseignement.",
+      heroLede: "Swissintell réunit plus de 350 praticiens en intelligence économique, compétitive et stratégique en Suisse. Depuis 2006, nous publions, débattons et connectons.",
+      ctaApply: "Devenir membre",
+      ctaCal: "Voir le calendrier",
+      login: "Espace membre"
+    },
+    de: {
+      heroEyebrow: "Empfohlene Veranstaltung · Mitglieder & Gäste",
+      heroH1a: "Intelligence prägt Entscheidungen. Wir prägen die ",
+      heroH1b: "Community",
+      heroH1c: " dahinter.",
+      heroLede: "Swissintell vereint über 350 Fachleute für Competitive, Economic und Strategic Intelligence in der Schweiz. Seit 2006 publizieren, debattieren und vernetzen wir.",
+      ctaApply: "Mitglied werden",
+      ctaCal: "Kalender ansehen",
+      login: "Mitgliederbereich"
+    }
+  };
+
+  const btns = document.querySelectorAll('.langsw button');
+  btns.forEach(b => b.addEventListener('click', () => {
+    btns.forEach(x => x.classList.remove('on'));
+    b.classList.add('on');
+    const lang = b.dataset.lang;
+    document.documentElement.lang = lang;
+    const t = i18n[lang];
+    document.querySelector('.hero .eyebrow').textContent = '— ' + t.heroEyebrow;
+    const h1 = document.querySelector('.hero h1');
+    h1.innerHTML = t.heroH1a + '<em>' + t.heroH1b + '</em>' + t.heroH1c;
+    document.querySelector('.hero .lede').textContent = t.heroLede;
+    const ctas = document.querySelectorAll('.hero-ctas a');
+    ctas[0].innerHTML = t.ctaApply + ' <span class="arr">→</span>';
+    ctas[1].textContent = t.ctaCal;
+    document.querySelector('.hdr-right .btn').innerHTML = t.login + ' <span class="arr">→</span>';
+  }));
+
+  // Restore language from localStorage
+  const saved = localStorage.getItem('swissintell-lang');
+  if (saved && saved !== 'en') {
+    const b = document.querySelector('.langsw button[data-lang="'+saved+'"]');
+    if (b) b.click();
+  }
+  btns.forEach(b => b.addEventListener('click', () => localStorage.setItem('swissintell-lang', b.dataset.lang)));
+</script>
+
+</body>
+</html>
